@@ -43,7 +43,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func setUpRootViewController() {
-        window?.rootViewController = ViewController()
+        window?.rootViewController = WeatherNavigationViewController()
         window?.makeKeyAndVisible()
     }
     
