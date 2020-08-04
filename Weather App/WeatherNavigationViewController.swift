@@ -6,4 +6,16 @@
 //  Copyright © 2020 Avelardo Valdez. All rights reserved.
 //
 
-import Foundation
+import UIKit
+
+class WeatherNavigationViewController: UINavigationController {
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        viewControllers = [WeatherViewController()]
+       
+    }
+  
+    
+    
+}
