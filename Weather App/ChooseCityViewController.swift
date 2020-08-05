@@ -47,7 +47,20 @@ class ChooseCityViewController: UIViewController {
     }
     
     @objc private func getWeather() {
-        delegate?.chosenCity(city: cityNameInput.text!)
+        guard let cityName = cityNameInput.text else { return }
+        let trimmedText = cityName.trimmingCharacters(in: .whitespaces)
+        if trimmedText.isEmpty {
+            return
+        }
+    
+        if cityName.contains(" ") {
+            let cityNameWithoutWhiteSpaces = cityName.replacingOccurrences(of: " ", with: "%20")
+            delegate?.chosenCity(city: cityNameWithoutWhiteSpaces)
+        } else {
+            delegate?.chosenCity(city: cityName)
+
+        }
+        
         navigationController?.popViewController(animated: true)
     }
     
