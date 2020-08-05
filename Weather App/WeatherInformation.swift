@@ -10,7 +10,7 @@ import Foundation
 
 struct WeatherInformation {
     
-    var cityName = "Atwater"
+    var cityName = "Modesto"
     var temperature: Double = 0 {
         didSet {
             temperatureInCelsius = round(temperature - 273.15)
@@ -20,6 +20,12 @@ struct WeatherInformation {
     var temperatureInCelsius = 40.0
     var temperatureInFahrenheit = 50.0
     var condition = "Sunny"
+    var weatherConditionIcon = "" {
+        didSet {
+            weatherConditionIconUrl = URL(string: "https://openweathermap.org/img/wn/\(weatherConditionIcon)@2x.png")!
+        }
+    }
     
+    var weatherConditionIconUrl: URL = URL(string: "https://openweathermap.org/img/wn/10d@2x.png")!
     
 }
