@@ -47,7 +47,8 @@ class ChooseCityViewController: UIViewController {
     }
     
     @objc private func getWeather() {
-        print(cityNameInput.text)
+        delegate?.chosenCity(city: cityNameInput.text!)
+        navigationController?.popViewController(animated: true)
     }
     
 }
