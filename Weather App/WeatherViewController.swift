@@ -19,7 +19,7 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Choose
     private let temperatureLabel = UILabel()
     private let conditionLabel = UILabel()
     private let chooseCityButton = UIButton(type: .system)
-    
+    private let iconImageView = UIImageView()
     private let locationManager = CLLocationManager()
     
     private var cityNameWeatherInformationStack: UIStackView!
@@ -39,10 +39,12 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Choose
         setUpTemperatureLabel()
         setUpConditionLabel()
         setUpChooseCityButton()
+        setUpIconImageView()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyKilometer
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
+        
         
     }
     
@@ -60,7 +62,7 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Choose
         super.viewWillLayoutSubviews()
         cityNameWeatherInformationStack = setUpCityNameWeatherInformationStack(with: [cityNameLabel, conditionLabel])
         temperatureStackView = setUpTemperatureStackView(with: [cityNameWeatherInformationStack, temperatureLabel])
-        let views: [UIView] = [temperatureStackView]
+        let views: [UIView] = [temperatureStackView, iconImageView]
         setUpVerticalStackView(with: views)
          
     }
@@ -69,6 +71,7 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Choose
     private func setUpCityNameLabel() {
         cityNameLabel.text = weatherInformation.cityName
         cityNameLabel.font = UIFont.systemFont(ofSize: 40)
+        cityNameLabel.adjustsFontSizeToFitWidth = true
     }
     
     private func setUpTemperatureLabel() {
@@ -89,6 +92,11 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Choose
         chooseCityButton.rightAnchor.constraint(equalTo: view.layoutMarginsGuide.rightAnchor).isActive = true
 
     }
+    
+    private func setUpIconImageView() {
+        iconImageView.contentMode = .scaleAspectFit
+    }
+  
        
     private func setUpVerticalStackView(with views: [UIView]) {
         let verticalStackView = UIStackView(arrangedSubviews: views)
@@ -100,7 +108,6 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Choose
         verticalStackView.topAnchor.constraint(equalTo: view.topAnchor, constant: view.frame.height / 3).isActive = true
         verticalStackView.rightAnchor.constraint(equalTo: view.layoutMarginsGuide.rightAnchor).isActive = true
         verticalStackView.leftAnchor.constraint(equalTo: view.layoutMarginsGuide.leftAnchor).isActive = true
-        verticalStackView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
     }
     
     private func setUpCityNameWeatherInformationStack(with views: [UIView]) -> UIStackView {
@@ -115,7 +122,7 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Choose
     private func setUpTemperatureStackView(with views: [UIView]) -> UIStackView {
         let horizontalStackView = UIStackView(arrangedSubviews: views)
         horizontalStackView.axis = .horizontal
-        horizontalStackView.alignment = .center
+        horizontalStackView.alignment = .leading
         horizontalStackView.spacing = 1
         return horizontalStackView
         
@@ -128,23 +135,18 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Choose
     }
     
     func chosenCity(city: String) {
-    
-        print(city)
         let urlSession = URLSession.shared
         let url = URL(string: apiURL + "?q=\(city)&appid=\(apiKey)")
-        print(url)
+        
         
         let task = urlSession.dataTask(with: url!) { (data, response, error) in
-            print("the data \(data)")
-            print("the response \(response)")
-            print("the error \(error)")
             
             let decoder = JSONDecoder()
             do {
                 let jsonData = try decoder.decode(WeatherData.self, from: data!)
             
                 print(jsonData.weather[0].main)
-                self.updateModel(cityName: jsonData.name, temperature: jsonData.main.temp, condition: jsonData.weather[0].main)
+                self.updateModel(cityName: jsonData.name, temperature: jsonData.main.temp, condition: jsonData.weather[0].main, weatherConditionIcon: jsonData.weather[0].icon)
                 DispatchQueue.main.async {
                     self.updateUI()
                 }
@@ -153,12 +155,7 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Choose
                 print(error)
         
             }
-            
-            
-            
         }
-        
-        
         task.resume()
         
         
@@ -166,16 +163,19 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Choose
     
  
     
-    func updateModel(cityName: String, temperature: Double, condition: String) {
+    func updateModel(cityName: String, temperature: Double, condition: String, weatherConditionIcon: String) {
         weatherInformation.cityName = cityName
         weatherInformation.temperature = temperature
         weatherInformation.condition = condition
+        weatherInformation.weatherConditionIcon = weatherConditionIcon
     }
     
     func updateUI() {
         cityNameLabel.text = weatherInformation.cityName
         conditionLabel.text = weatherInformation.condition
         temperatureLabel.text = "\(weatherInformation.temperatureInFahrenheit)˚F"
+        iconImageView.loadImage(from: weatherInformation.weatherConditionIconUrl)
+        
     }
     
     private func getWeatherForCurrentLocation(latitude: CLLocationDegrees, longitude: CLLocationDegrees) {
@@ -183,45 +183,40 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate, Choose
         let url = URL(string: apiURL + "?lat=\(latitude)&lon=\(longitude)&appid=\(apiKey)")
         
         let task = urlSession.dataTask(with: url!) { data, response, error in
+
         let decoder = JSONDecoder()
               do {
-                  let jsonData = try decoder.decode(WeatherData.self, from: data!)
-              
-                  print(jsonData)
-                  self.updateModel(cityName: jsonData.name, temperature: jsonData.main.temp, condition: jsonData.weather[0].main)
+                let jsonData = try decoder.decode(WeatherData.self, from: data!)
+                self.updateModel(cityName: jsonData.name, temperature: jsonData.main.temp, condition: jsonData.weather[0].main, weatherConditionIcon: jsonData.weather[0].icon)
+                
                   DispatchQueue.main.async {
                       self.updateUI()
                   }
                   
               } catch(let error) {
-                  print(error)
+                print(error)
+                self.updateModel(cityName: "Could Not get Weather", temperature: 0.0, condition: "Unknown", weatherConditionIcon: "Unknown")
           
               }
               
               
               
           }
-          
-          
+        
           task.resume()
-          
-          
+
     }
     
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         let coordinates = manager.location?.coordinate
-        
-        print(coordinates?.latitude)
-        print(coordinates?.longitude)
-        
         getWeatherForCurrentLocation(latitude: coordinates!.latitude, longitude: coordinates!.longitude)
-        
-        
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        cityNameLabel.text = "Location Not Found"
+        cityNameLabel.text = "Could Not Get Location"
+        temperatureLabel.text = "0.0"
+        conditionLabel.text = "Unknown"
     }
 }
 
