@@ -11,7 +11,14 @@ import Foundation
 struct WeatherInformation {
     
     var cityName = "Atwater"
-    var temperature = "40"
+    var temperature: Double = 0 {
+        didSet {
+            temperatureInCelsius = round(temperature - 273.15)
+            temperatureInFahrenheit = round((9 / 5) * temperatureInCelsius + 32)
+        }
+    }
+    var temperatureInCelsius = 40.0
+    var temperatureInFahrenheit = 50.0
     var condition = "Sunny"
     
     
