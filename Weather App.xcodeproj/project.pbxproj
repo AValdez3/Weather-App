@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6F6F7B8824DB30C9007C423A /* UIImageView+LoadImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6F7B8724DB30C9007C423A /* UIImageView+LoadImage.swift */; };
 		6F7DEEDB24D9E6650096B0DB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F7DEEDA24D9E6650096B0DB /* AppDelegate.swift */; };
 		6F7DEEDD24D9E6650096B0DB /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F7DEEDC24D9E6650096B0DB /* SceneDelegate.swift */; };
 		6F7DEEDF24D9E6650096B0DB /* WeatherViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F7DEEDE24D9E6650096B0DB /* WeatherViewController.swift */; };
@@ -21,6 +22,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6F6F7B8724DB30C9007C423A /* UIImageView+LoadImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+LoadImage.swift"; sourceTree = "<group>"; };
 		6F7DEED724D9E6650096B0DB /* Weather App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Weather App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6F7DEEDA24D9E6650096B0DB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6F7DEEDC24D9E6650096B0DB /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -47,6 +49,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6F6F7B8624DB23E9007C423A /* JSON Structs */ = {
+			isa = PBXGroup;
+			children = (
+				6F7DEF0024DA29B50096B0DB /* WeatherData.swift */,
+				6F7DEEFE24DA29A60096B0DB /* Weather.swift */,
+				6F7DEF0224DA2A140096B0DB /* Main.swift */,
+			);
+			path = "JSON Structs";
+			sourceTree = "<group>";
+		};
 		6F7DEECE24D9E6650096B0DB = {
 			isa = PBXGroup;
 			children = (
@@ -71,10 +83,9 @@
 				6F7DEEF424D9EE530096B0DB /* WeatherNavigationViewController.swift */,
 				6F7DEEF624D9FD0B0096B0DB /* WeatherInformation.swift */,
 				6F7DEEDE24D9E6650096B0DB /* WeatherViewController.swift */,
+				6F6F7B8724DB30C9007C423A /* UIImageView+LoadImage.swift */,
 				6F7DEEF824DA0C870096B0DB /* ChooseCityViewController.swift */,
-				6F7DEF0024DA29B50096B0DB /* WeatherData.swift */,
-				6F7DEEFE24DA29A60096B0DB /* Weather.swift */,
-				6F7DEF0224DA2A140096B0DB /* Main.swift */,
+				6F6F7B8624DB23E9007C423A /* JSON Structs */,
 				6F7DEEE324D9E6680096B0DB /* Assets.xcassets */,
 				6F7DEEE524D9E6680096B0DB /* LaunchScreen.storyboard */,
 				6F7DEEE824D9E6680096B0DB /* Info.plist */,
@@ -160,6 +171,7 @@
 				6F7DEEDB24D9E6650096B0DB /* AppDelegate.swift in Sources */,
 				6F7DEEF524D9EE530096B0DB /* WeatherNavigationViewController.swift in Sources */,
 				6F7DEF0124DA29B50096B0DB /* WeatherData.swift in Sources */,
+				6F6F7B8824DB30C9007C423A /* UIImageView+LoadImage.swift in Sources */,
 				6F7DEEDD24D9E6650096B0DB /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
