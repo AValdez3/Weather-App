@@ -7,17 +7,23 @@
 //
 
 import UIKit
+import CoreLocation
 
-class WeatherViewController: UIViewController {
+class WeatherViewController: UIViewController, CLLocationManagerDelegate, ChooseCityViewControllerDelegate {
 
-    let weatherInformation = WeatherInformation()
-    let cityNameLabel = UILabel()
-    let temperatureLabel = UILabel()
-    let conditionLabel = UILabel()
-    let chooseCityButton = UIButton(type: .system)
+    private let apiURL = "https://api.openweathermap.org/data/2.5/weather"
+    private let apiKey = ""
     
-    var cityNameWeatherInformationStack: UIStackView!
-    var temperatureStackView: UIStackView!
+    private var weatherInformation = WeatherInformation()
+    private let cityNameLabel = UILabel()
+    private let temperatureLabel = UILabel()
+    private let conditionLabel = UILabel()
+    private let chooseCityButton = UIButton(type: .system)
+    
+    private let locationManager = CLLocationManager()
+    
+    private var cityNameWeatherInformationStack: UIStackView!
+    private var temperatureStackView: UIStackView!
     
     
     override func loadView() {
@@ -33,6 +39,10 @@ class WeatherViewController: UIViewController {
         setUpTemperatureLabel()
         setUpConditionLabel()
         setUpChooseCityButton()
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyKilometer
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
         
     }
     
@@ -62,7 +72,7 @@ class WeatherViewController: UIViewController {
     }
     
     private func setUpTemperatureLabel() {
-        temperatureLabel.text = weatherInformation.temperature
+        temperatureLabel.text = "\(weatherInformation.temperature)"
         temperatureLabel.font = UIFont.systemFont(ofSize: 50)
     }
     
@@ -112,8 +122,106 @@ class WeatherViewController: UIViewController {
     }
     
     @objc func navigateToChooseACityViewController() {
-       
-        navigationController?.pushViewController(ChooseCityViewController(), animated: true)
+       let chooseCityViewController = ChooseCityViewController()
+        chooseCityViewController.delegate = self
+        navigationController?.pushViewController(chooseCityViewController, animated: true)
+    }
+    
+    func chosenCity(city: String) {
+    
+        print(city)
+        let urlSession = URLSession.shared
+        let url = URL(string: apiURL + "?q=\(city)&appid=\(apiKey)")
+        print(url)
+        
+        let task = urlSession.dataTask(with: url!) { (data, response, error) in
+            print("the data \(data)")
+            print("the response \(response)")
+            print("the error \(error)")
+            
+            let decoder = JSONDecoder()
+            do {
+                let jsonData = try decoder.decode(WeatherData.self, from: data!)
+            
+                print(jsonData.weather[0].main)
+                self.updateModel(cityName: jsonData.name, temperature: jsonData.main.temp, condition: jsonData.weather[0].main)
+                DispatchQueue.main.async {
+                    self.updateUI()
+                }
+                
+            } catch(let error) {
+                print(error)
+        
+            }
+            
+            
+            
+        }
+        
+        
+        task.resume()
+        
+        
+    }
+    
+ 
+    
+    func updateModel(cityName: String, temperature: Double, condition: String) {
+        weatherInformation.cityName = cityName
+        weatherInformation.temperature = temperature
+        weatherInformation.condition = condition
+    }
+    
+    func updateUI() {
+        cityNameLabel.text = weatherInformation.cityName
+        conditionLabel.text = weatherInformation.condition
+        temperatureLabel.text = "\(weatherInformation.temperatureInFahrenheit)˚F"
+    }
+    
+    private func getWeatherForCurrentLocation(latitude: CLLocationDegrees, longitude: CLLocationDegrees) {
+        let urlSession = URLSession.shared
+        let url = URL(string: apiURL + "?lat=\(latitude)&lon=\(longitude)&appid=\(apiKey)")
+        
+        let task = urlSession.dataTask(with: url!) { data, response, error in
+        let decoder = JSONDecoder()
+              do {
+                  let jsonData = try decoder.decode(WeatherData.self, from: data!)
+              
+                  print(jsonData)
+                  self.updateModel(cityName: jsonData.name, temperature: jsonData.main.temp, condition: jsonData.weather[0].main)
+                  DispatchQueue.main.async {
+                      self.updateUI()
+                  }
+                  
+              } catch(let error) {
+                  print(error)
+          
+              }
+              
+              
+              
+          }
+          
+          
+          task.resume()
+          
+          
+    }
+    
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        let coordinates = manager.location?.coordinate
+        
+        print(coordinates?.latitude)
+        print(coordinates?.longitude)
+        
+        getWeatherForCurrentLocation(latitude: coordinates!.latitude, longitude: coordinates!.longitude)
+        
+        
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        cityNameLabel.text = "Location Not Found"
     }
 }
 
